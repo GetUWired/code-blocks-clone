@@ -1,30 +1,30 @@
-'use strict';
+"use strict";
 
-var $ = require('jquery');
-var hljs = require('highlight.js');
-var juice = require('juice/client');
+var $ = require("jquery");
+var hljs = require("highlight.js");
+var juice = require("juice/client");
 
-const defaultBgc = '#f0f0f0';
-const languageAuto = 'Auto';
+const defaultBgc = "#f0f0f0";
+const languageAuto = "Auto";
 
 const ids = {
-    language: '#language',
-    theme: '#theme',
-    themes: '#themes',
-    noBackground: '#no-background',
-    preview: '#preview',
-    formatButtons: '#format-buttons',
-    format: '#format-selection',
-    showPreview: '#show-preview',
-    error: '#error'
+    language: "#language",
+    theme: "#theme",
+    themes: "#themes",
+    noBackground: "#no-background",
+    preview: "#preview",
+    formatButtons: "#format-buttons",
+    format: "#format-selection",
+    showPreview: "#show-preview",
+    error: "#error",
 };
 
 /**
  * Define languages that are not included in highlight.js by default
  */
 function defineThirdPartyGrammars() {
-    const graphql = require("highlightjs-graphql")
-    graphql(hljs)
+    const graphql = require("highlightjs-graphql");
+    graphql(hljs);
 }
 
 defineOtherLanguages();
@@ -33,12 +33,12 @@ defineOtherLanguages();
  * On document load, try to load languages and themes, try to load the user's
  * preferences if previously set, and assign click handlers to each button.
  */
-$(function () {
+$(function() {
     const languages = hljs.listLanguages();
 
     // add html explicitly for users who don't realize that xml will work;
     // html is an alias for xml in highlight.js
-    languages.push('html');
+    languages.push("html");
     languages.sort();
 
     loadLanguages(languages);
@@ -66,9 +66,9 @@ function preview() {
     this.disabled = true;
     $(ids.error).remove();
 
-    const language = $(ids.language + ' option:selected').text();
-    const theme = $(ids.theme + ' option:selected').text();
-    const noBackground = $(ids.noBackground).is(':checked');
+    const language = $(ids.language + " option:selected").text();
+    const theme = $(ids.theme + " option:selected").text();
+    const noBackground = $(ids.noBackground).is(":checked");
 
     google.script.run
         .withFailureHandler(showErrorButtons)
@@ -77,7 +77,7 @@ function preview() {
                 result.selection,
                 result.css,
                 language,
-                noBackground
+                noBackground,
             );
 
             // render preview
@@ -89,7 +89,7 @@ function preview() {
         .getSelectionAndThemeCssForPreview({
             language: language,
             theme: theme,
-            noBackground: noBackground
+            noBackground: noBackground,
         });
 }
 
@@ -102,11 +102,11 @@ function format() {
     this.disabled = true;
     $(ids.error).remove();
 
-    const language = $(ids.language + ' option:selected').text();
-    const theme = $(ids.theme + ' option:selected').text();
-    const noBackground = $(ids.noBackground).is(':checked');
+    const language = $(ids.language + " option:selected").text();
+    const theme = $(ids.theme + " option:selected").text();
+    const noBackground = $(ids.noBackground).is(":checked");
 
-    const html = $(ids.preview).prop('outerHTML');
+    const html = $(ids.preview).prop("outerHTML");
     google.script.run
         .withFailureHandler(showErrorButtons)
         .withSuccessHandler(function onSuccess(result, element) {
@@ -116,9 +116,12 @@ function format() {
             }
 
             const block = createHighlightedBlock(
-                result.selection, result.css, language, noBackground
+                result.selection,
+                result.css,
+                language,
+                noBackground,
             );
-            const html = block.prop('outerHTML');
+            const html = block.prop("outerHTML");
 
             google.script.run
                 .withFailureHandler(showErrorButtons)
@@ -130,7 +133,7 @@ function format() {
         .insertCodeOrGetSelectionAndThemeCss(html, {
             language: language,
             theme: theme,
-            noBackground: noBackground
+            noBackground: noBackground,
         });
 }
 
@@ -164,7 +167,7 @@ function loadThemes(themes) {
  * @returns {string} option element
  */
 function toOption(value) {
-    return '<option value="' + value + '">' + value + '</option>';
+    return '<option value="' + value + '">' + value + "</option>";
 }
 
 /**
@@ -180,7 +183,7 @@ function loadUserPrefs(languages, themes, prefs) {
             return l === prefs.language;
         });
         if (selectionIsValid) {
-            language.val(prefs.language)
+            language.val(prefs.language);
         }
     }
 
@@ -194,8 +197,8 @@ function loadUserPrefs(languages, themes, prefs) {
         }
     }
 
-    if (prefs.noBackground && prefs.noBackground.toString() === 'true') {
-        $(ids.noBackground).prop('checked', true);
+    if (prefs.noBackground && prefs.noBackground.toString() === "true") {
+        $(ids.noBackground).prop("checked", true);
     }
 }
 
@@ -211,7 +214,7 @@ function createHighlightedBlock(text, css, language, noBackground) {
 
     var block = $(ids.preview).clone();
     block.removeClass();
-    block.removeAttr('style');
+    block.removeAttr("style");
     block.text(text);
     if (language !== languageAuto) {
         block.addClass(language);
@@ -220,35 +223,32 @@ function createHighlightedBlock(text, css, language, noBackground) {
     const node = block[0];
     hljs.highlightBlock(node);
 
-    var highlighted = block.prop('outerHTML');
+    var highlighted = block.prop("outerHTML");
     if (css) {
         const params = {
             applyHeightAttributes: false,
             applyWidthAttributes: false,
             inlinePseudoElements: false,
             preserveFontFaces: false,
-            preserveMediaQueries: false
+            preserveMediaQueries: false,
         };
         highlighted = juice.inlineContent(highlighted, css, params);
     }
 
     block = $($.parseHTML(highlighted));
     if (noBackground) {
-        block.css('background', defaultBgc);
+        block.css("background", defaultBgc);
     }
 
     return block;
 }
 
 function enableUiElements() {
-    [
-        ids.language,
-        ids.theme,
-        ids.format,
-        ids.showPreview
-    ].forEach(function enable(id) {
-        $(id).prop('disabled', false);
-    });
+    [ids.language, ids.theme, ids.format, ids.showPreview].forEach(
+        function enable(id) {
+            $(id).prop("disabled", false);
+        },
+    );
 }
 
 //noinspection JSUnusedLocalSymbols
@@ -277,7 +277,7 @@ function showErrorButtons(msg, element) {
  * @param {string} elementId the element to display the error under
  */
 function showError(msg, elementId) {
-    const div = $('<div id="error" class="error">' + msg + '</div>');
+    const div = $('<div id="error" class="error">' + msg + "</div>");
     $(elementId).after(div);
 }
 
@@ -287,32 +287,32 @@ function showError(msg, elementId) {
  * @returns {string} the text with special characters replaced
  */
 function replaceSpecialChars(text) {
-    var re = new RegExp(Object.keys(replacements).join('|'), 'g');
+    var re = new RegExp(Object.keys(replacements).join("|"), "g");
     return text.replace(re, function getReplacement(match) {
         return replacements[match];
     });
 }
 
 const replacements = {
-    '\u2018': '\'',
-    '\u2019': '\'',
-    '\u201A': '\'',
-    '\uFFFD': '\'',
-    '\u201c': '"',
-    '\u201d': '"',
-    '\u201e': '"',
-    '\u02C6': '^',
-    '\u2039': '<',
-    '\u203A': '>',
-    '\u2013': '-',
-    '\u2014': '--',
-    '\u2026': '...',
-    '\u00A9': '(c)',
-    '\u00AE': '(r)',
-    '\u2122': 'TM',
-    '\u00BC': '1/4',
-    '\u00BD': '1/2',
-    '\u00BE': '3/4',
-    '\u02DC': ' ',
-    '\u00A0': ' '
+    "\u2018": "'",
+    "\u2019": "'",
+    "\u201A": "'",
+    "\uFFFD": "'",
+    "\u201c": '"',
+    "\u201d": '"',
+    "\u201e": '"',
+    "\u02C6": "^",
+    "\u2039": "<",
+    "\u203A": ">",
+    "\u2013": "-",
+    "\u2014": "--",
+    "\u2026": "...",
+    "\u00A9": "(c)",
+    "\u00AE": "(r)",
+    "\u2122": "TM",
+    "\u00BC": "1/4",
+    "\u00BD": "1/2",
+    "\u00BE": "3/4",
+    "\u02DC": " ",
+    "\u00A0": " ",
 };
